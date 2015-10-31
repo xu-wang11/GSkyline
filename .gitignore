@@ -30,3 +30,8 @@
 
 # Debug files
 *.dSYM/
+*Debug*
+*Release*
+*.opensdf
+*.suo
+*.filters
