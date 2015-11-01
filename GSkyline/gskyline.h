@@ -34,7 +34,7 @@ public:
 	void BuildDSG();
 	vector<Group> PointWise();
 	vector<Group> UnitWise();
-
+	vector<Group> UnitWisePlus();
 	void print_layers();
 
 };
