@@ -44,7 +44,7 @@ GSkyline::GSkyline(string filename)
 	this->load(filename);
 	this->SortPoints();
 	this->BuildDSG();
-	this->print_layers();
+	//this->print_layers();
 }
 
 void GSkyline::load(string filename)
@@ -85,6 +85,7 @@ void GSkyline::BuildDSG()
 {
 	if (allPoints.size()){
 		allPoints[0]->layer = 0;
+		allPoints[0]->isSkylinePoint = true;
 		vector<Point*> layer;
 		layer.push_back(allPoints[0]);
 		layers.push_back(layer);
@@ -95,11 +96,13 @@ void GSkyline::BuildDSG()
 			if (!(*(layers[0][layers[0].size() - 1])).isDomain(*p))
 			{
 				p->layer = 0;
+				p->isSkylinePoint = true;
 				layers[0].push_back(p);
 			}
 			else if ((*(layers[layers.size() - 1][layers[layers.size() - 1].size() - 1])).isDomain(*p))
 			{
 				p->layer = ++maxlayer;
+				p->isSkylinePoint = false;
 				vector<Point*>layer;
 				layer.push_back(p);
 				layers.push_back(layer);
@@ -121,6 +124,7 @@ void GSkyline::BuildDSG()
 					}
 				}
 				p->layer = r;
+				p->isSkylinePoint = false;
 				layers[l].push_back(p);
 
 			}
@@ -154,8 +158,44 @@ void GSkyline::BuildDSG()
 
 vector<Group> GSkyline::PointWise(int k)
 {
-	
-	return vector<Group>();
+	vector<vector<Group>> groups;
+	Group g0;
+	g0.tail = 0;
+	g0.maxLayer = 0;
+	vector<Group> vg0;
+	vg0.push_back(g0);
+	groups.push_back(vg0);
+	for (int i = 1; i <= k; i++)
+	{
+		vector<Group> vgk;
+		vector<Group>::iterator it;
+		for (it = groups[i - 1].begin(); it != groups[i - 1].end(); it++)
+		{
+			it->CalculateCS();
+			for (int k = it->tail; k < allPoints.size(); k++)
+			{
+				Point * p = allPoints[k];
+				if (p->isSkylinePoint || it->ChildSet.find(p) != it->ChildSet.end())
+				{
+					if (p->layer - it->maxLayer < 2)
+					{
+						//creat new group
+						if (it->VerifyPoint(p))
+						{
+							Group ng;
+							ng.pointSet.insert(it->pointSet.begin(), it->pointSet.end());
+							ng.pointSet.insert(p);
+							ng.tail = k + 1;
+							ng.maxLayer = it->maxLayer > p->layer ? it->maxLayer : p->layer;
+							vgk.push_back(ng);
+						}
+					}
+				}
+			}
+		}
+		groups.push_back(vgk);
+	}
+	return groups[k];
 }
 
 vector<Group> GSkyline::UnitWise(int k)
@@ -190,4 +230,51 @@ void GSkyline::print_layers()
 		}
 		cout << endl;
 	}
+}
+
+void Group::CalculateCS()
+{
+	ChildSet.clear();
+	set<Point*>::iterator it;
+	for (it = pointSet.begin(); it != pointSet.end(); it ++)
+	{
+		for each (Point* q in (*it)->cSet)
+		{
+			ChildSet.insert(q);
+		}
+	}
+}
+
+bool Group::VerifyPoint(Point* p)
+{
+	if (p->isSkylinePoint)
+		return true;
+	for each (Point* q in p->pSet)
+	{
+		if (pointSet.find(q) == pointSet.end())
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+void Group::Print()
+{
+	set<Point*>::iterator it = pointSet.begin();
+	cout << "{";
+	while (true)
+	{
+		cout << "p" << (*it)->id;
+		it++;
+		if (it != pointSet.end())
+		{
+			cout << ",";
+		}
+		else
+		{
+			break;
+		}
+	}
+	cout << "}" << endl;
 }
