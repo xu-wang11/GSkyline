@@ -5,15 +5,15 @@ using namespace std;
 class Point
 {
 public:
-	int* v;
-	int len;
-	int level;
+	vector<double> v;
+	int layer;
 	int id;
 	vector<Point> pSet;
 	vector<Point> cSet;
 	
 public:
 	bool isDomain(const Point &p);
+	bool operator < (const Point &m)const;
 };
 
 class Group
@@ -25,14 +25,17 @@ public:
 class GSkyline
 {
 public:
-	vector<Point> allPoints;
+	vector<Point*> allPoints;
+	vector<vector<Point*>> layers;
 public:
 	GSkyline(string filename);
-	void load();
+	void load(string filename);
 	void SortPoints();
 	void BuildDSG();
 	vector<Group> PointWise();
 	vector<Group> UnitWise();
+
+	void print_layers();
 
 };
 #endif

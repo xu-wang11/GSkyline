@@ -84,6 +84,21 @@
     <ClCompile Include="gskyline.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="data\anti_2.txt" />
+    <Text Include="data\anti_4.txt" />
+    <Text Include="data\anti_6.txt" />
+    <Text Include="data\anti_8.txt" />
+    <Text Include="data\corr_2.txt" />
+    <Text Include="data\corr_4.txt" />
+    <Text Include="data\corr_6.txt" />
+    <Text Include="data\corr_8.txt" />
+    <Text Include="data\inde_2.txt" />
+    <Text Include="data\inde_4.txt" />
+    <Text Include="data\inde_6.txt" />
+    <Text Include="data\inde_8.txt" />
+    <Text Include="data\test.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
