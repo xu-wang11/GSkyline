@@ -128,6 +128,25 @@ void GSkyline::BuildDSG()
 
 
 		}
+		for (int i = 0; i < layers.size(); i++)
+		{
+			for (int j = 0; j < layers[i].size(); j++)
+			{
+				Point * p = layers[i][j];
+				for (int k = 0; k < i; k++)
+				{
+					for (int s = 0; s < layers[k].size(); s++)
+					{
+						if (layers[k][s]->isDomain(*p))
+						{
+							layers[k][s]->cSet.push_back(p);
+							p->pSet.push_back(layers[k][s]);
+						}
+					}
+				}
+			}
+		}
+
 	}
 
 
@@ -153,6 +172,16 @@ void GSkyline::print_layers()
 		for (int j = 0; j < layers[i].size(); j++)
 		{
 			cout << "p" << layers[i][j]->id << " ";
+		}
+		cout << endl;
+	}
+	for (int i = 0; i < allPoints.size(); i++)
+	{
+		//
+		cout << "p" << allPoints[i]->id << "'s children: ";
+		for (int j = 0; j < allPoints[i]->cSet.size(); j++)
+		{
+			cout << "p" << allPoints[i]->cSet[j]->id << " ";
 		}
 		cout << endl;
 	}

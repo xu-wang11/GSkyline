@@ -8,8 +8,8 @@ public:
 	vector<double> v;
 	int layer;
 	int id;
-	vector<Point> pSet;
-	vector<Point> cSet;
+	vector<Point*> pSet;
+	vector<Point*> cSet;
 	
 public:
 	bool isDomain(const Point &p);
@@ -19,7 +19,7 @@ public:
 class Group
 {
 public:
-	vector<Point> p;
+	vector<Point*> p;
 };
 
 class GSkyline
