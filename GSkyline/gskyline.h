@@ -8,8 +8,8 @@ public:
 	vector<double> v;
 	int layer;
 	int id;
-	vector<Point*> pSet;
-	vector<Point*> cSet;
+	vector<Point*> pSet; //parent set
+	vector<Point*> cSet; // children set
 	
 public:
 	bool isDomain(const Point &p);
@@ -20,6 +20,7 @@ class Group
 {
 public:
 	vector<Point*> p;
+	vector<Point*> tSet; //tail set
 };
 
 class GSkyline
