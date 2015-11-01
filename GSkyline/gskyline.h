@@ -32,9 +32,9 @@ public:
 	void load(string filename);
 	void SortPoints();
 	void BuildDSG();
-	vector<Group> PointWise();
-	vector<Group> UnitWise();
-	vector<Group> UnitWisePlus();
+	vector<Group> PointWise(int k);
+	vector<Group> UnitWise(int k);
+	vector<Group> UnitWisePlus(int k);
 	void print_layers();
 
 };

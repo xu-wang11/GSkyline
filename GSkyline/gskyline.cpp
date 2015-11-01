@@ -152,19 +152,19 @@ void GSkyline::BuildDSG()
 
 }
 
-vector<Group> GSkyline::PointWise()
+vector<Group> GSkyline::PointWise(int k)
 {
 	
 	return vector<Group>();
 }
 
-vector<Group> GSkyline::UnitWise()
+vector<Group> GSkyline::UnitWise(int k)
 {
 	throw exception("unimplemented");
 	return vector<Group>();
 }
 
-vector<Group> GSkyline::UnitWisePlus()
+vector<Group> GSkyline::UnitWisePlus(int k)
 {
 	return vector<Group>();
 }
