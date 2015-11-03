@@ -34,10 +34,11 @@ public:
 	void BuildDSG();
 	vector<Group> PointWise(int k);
 	vector<Group> UnitWise(int k);
-	vector<UGroup> UnitWisePlus(int k);
+	//optimize should be false.it's a unsuccessful attempt
+	vector<UGroup> UnitWisePlus(int k,bool optimize);
 	void print_layers();
 	void sortPointsByLayer();
 	UGroup getGLast(Point* p);
-
+	UGroup getGLast(UGroup p);
 };
 #endif

@@ -10,10 +10,9 @@ int main()
 	for(vector<Group>::iterator it = gs.begin(); it != gs.end(); it++){
 		(*it).Print();
 	}
-	vector<UGroup> gs1 = skyline.UnitWisePlus(4);
+	vector<UGroup> gs1 = skyline.UnitWisePlus(4,false);
 	for(vector<UGroup>::iterator it = gs1.begin(); it != gs1.end(); it++){
 		(*it).PrintAsc();
 	}
-
 	return 0;
 }
