@@ -11,32 +11,8 @@ bool comparePoint(Point* a, Point* b)
 	return (*a < *b); 
 }
 
-bool Point::isDomain(const Point &p)
-{
-	for (int i = 0; i < v.size(); i++)
-	{
-		if (v[i] > p.v[i])
-		{
-			return false;
-		}
-	}
-	return true;
-}
-bool Point::operator < (const Point &m)const
-{
-	
-	for (int i = 0; i < v.size(); i++)
-	{
-		if (v[i] < m.v[i])
-		{
-			return true;
-		}
-		else if (v[i] > m.v[i])
-		{
-			return false;
-		}
-	}
-	return false;
+bool comparePointByLayer(Point* a, Point* b){
+	return a->layer < b->layer;
 }
 
 GSkyline::GSkyline(string filename)
@@ -44,6 +20,7 @@ GSkyline::GSkyline(string filename)
 	this->load(filename);
 	this->SortPoints();
 	this->BuildDSG();
+	this->sortPointsByLayer();
 	//this->print_layers();
 }
 
@@ -203,10 +180,80 @@ vector<Group> GSkyline::UnitWise(int k)
 	throw exception("unimplemented");
 	return vector<Group>();
 }
+UGroup GSkyline::getGLast(Point* p){
+	UGroup ret;
+	for(int i = p->index; i >= 0; i--)
+		ret.insert(allPoints[i]);
+	return ret;
+}
 
-vector<Group> GSkyline::UnitWisePlus(int k)
+vector<UGroup> GSkyline::UnitWisePlus(int k)
 {
-	return vector<Group>();
+	vector<UGroup> result;
+	for(int u1 = allPoints.size()-1; u1 >= 0; u1--){
+		cout << "try: p"<< allPoints[u1]->id << endl;
+		//construct 1-unit groups with each point
+		vector<Point*> points;
+		points.push_back(allPoints[u1]);
+		UGroup ug1(points);
+		//preprocessing
+		if(ug1.size == k){
+			//ug1.Print();
+			result.push_back(ug1);
+			continue;
+		}
+		UGroup last = getGLast(allPoints[u1]);
+		if(last.size == k){
+			result.push_back(last);
+			break;
+		}
+		else if(last.size < k){
+			break;
+		}
+
+		////add first two layers: the 1st layer is never used and the second layer has only one item.
+		//vector<vector<UGroup>> groups;
+		//vector<UGroup> g0;
+		//groups.push_back(g0);
+		//vector<UGroup> g1;
+		//g1.push_back(ug1);
+		//groups.push_back(g1);
+
+		vector<UGroup> now_layer_i_ugs;
+		vector<UGroup> last_layer_i_ugs;
+		now_layer_i_ugs.push_back(ug1);
+
+		int i = 2;
+		while(true){
+			//vector<UGroup> layer_i_ugs;
+			last_layer_i_ugs = now_layer_i_ugs;
+			now_layer_i_ugs.clear();
+			for(vector<UGroup>::iterator it = last_layer_i_ugs.begin();it != last_layer_i_ugs.end(); it++){
+				UGroup ug = *it;
+				set<Point*> ps = it->allParentSet;
+				for(int j = ug.tail; j >= 0; j--){
+					if(ps.find(allPoints[j]) == ps.end()){
+						UGroup new_ug(ug);
+						//new_ug.unitSet=  ug.unitSet;
+						//new_ug.allParentSet = ug.allParentSet;
+						new_ug.insert(allPoints[j]);
+						new_ug.tail = j - 1;
+						if(new_ug.size == k){
+							//new_ug.Print();
+							result.push_back(new_ug);
+						}
+						else if(new_ug.allPointSize() < k){
+							now_layer_i_ugs.push_back(new_ug);
+						}
+					}
+				}
+			}
+			if(now_layer_i_ugs.empty())
+				break;
+			i++;
+		}
+	}
+	return result;
 }
 
 void GSkyline::print_layers()
@@ -232,15 +279,29 @@ void GSkyline::print_layers()
 	}
 }
 
+
+//add by kangrong
+void GSkyline::sortPointsByLayer(){
+	sort(this->allPoints.begin(), this->allPoints.end(), comparePointByLayer);
+	for(int i = 0; i < allPoints.size(); i++)
+		allPoints[i]->index = i;
+}
+
+
 void Group::CalculateCS()
 {
 	ChildSet.clear();
 	set<Point*>::iterator it;
 	for (it = pointSet.begin(); it != pointSet.end(); it ++)
 	{
-		for each (Point* q in (*it)->cSet)
+		/*for each (Point* q in (*it)->cSet)
 		{
 			ChildSet.insert(q);
+		}*/
+		vector<Point*>::iterator cSetIt;
+		for(cSetIt = (*it)->cSet.begin(); cSetIt != (*it)->cSet.end(); cSetIt++)
+		{
+			ChildSet.insert(*cSetIt);
 		}
 	}
 }
@@ -249,8 +310,10 @@ bool Group::VerifyPoint(Point* p)
 {
 	if (p->isSkylinePoint)
 		return true;
-	for each (Point* q in p->pSet)
+	//for each (Point* q in p->pSet)
+	for(vector<Point*>::iterator it = p->pSet.begin(); it != p->pSet.end(); it++)
 	{
+		Point* q = *it;
 		if (pointSet.find(q) == pointSet.end())
 		{
 			return false;
