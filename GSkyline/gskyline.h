@@ -38,6 +38,7 @@ public:
 	vector<UGroup> UnitWisePlus(int k,bool optimize);
 	void print_layers();
 	void sortPointsByLayer();
+	vector<Group> preprocessing(int k);
 	UGroup getGLast(Point* p);
 	UGroup getGLast(UGroup p);
 };

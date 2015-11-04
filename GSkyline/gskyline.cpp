@@ -311,7 +311,29 @@ void GSkyline::sortPointsByLayer(){
 	for(int i = 0; i < allPoints.size(); i++)
 		allPoints[i]->index = i;
 }
-
+vector<Group> GSkyline::preprocessing(int k){
+	vector<Point*> temp;
+	vector<Group> ret;
+	int index = 0;
+	for(vector<Point*>::iterator it = allPoints.begin(); it != allPoints.end(); it++){
+		Point* p = *it;
+		if(p->layer > k)
+			break;
+		if(p->pSet.size() + 1 == k){
+			Group ng;
+			ng.pointSet.insert(p->pSet.begin(),p->pSet.end());
+			ng.pointSet.insert(p);
+			ret.push_back(ng);
+		}
+		else if(p->pSet.size() + 1 < k){
+			p->index = index++;
+			temp.push_back(p);
+		}
+		//if the size of unit (include point and its parent) is greater than k,delete
+	}
+	this->allPoints = temp;
+	return ret;
+}
 
 void Group::CalculateCS()
 {
