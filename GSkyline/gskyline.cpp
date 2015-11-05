@@ -182,8 +182,12 @@ vector<Group> GSkyline::UnitWise(int k)
 }
 UGroup GSkyline::getGLast(Point* p){
 	UGroup ret;
-	for(int i = p->index; i >= 0; i--)
+	for(int i = p->index; i >= 0; i--){
+		//cout << "add p" << allPoints[i]->id << endl;
 		ret.insert(allPoints[i]);
+//		if(i % 1000 == 0)
+//			cout << "add " << i << endl;
+	}
 	return ret;
 }
 
@@ -201,12 +205,13 @@ UGroup GSkyline::getGLast(UGroup ug){
 	return ret;
 }
 
-vector<UGroup> GSkyline::UnitWisePlus(int k,bool optimize)
+/*vector<UGroup>*/int GSkyline::UnitWisePlus(int k,bool optimize)
 {
+	int resultNum = 0;
 	int statCandidateNum = 0;
 	vector<UGroup> result;
 	for(int u1 = allPoints.size()-1; u1 >= 0; u1--){
-		cout << "try: p"<< allPoints[u1]->id << endl;
+		//cout << "try: p"<< allPoints[u1]->id << endl;
 		//construct 1-unit groups with each point
 		vector<Point*> points;
 		points.push_back(allPoints[u1]);
@@ -215,13 +220,15 @@ vector<UGroup> GSkyline::UnitWisePlus(int k,bool optimize)
 		//preprocessing
 		if(ug1.size == k){
 			//ug1.Print();
-			result.push_back(ug1);
+			//result.push_back(ug1);
+			resultNum++;
 			continue;
 		}
 		statCandidateNum++;
 		UGroup last = getGLast(allPoints[u1]);
 		if(last.size == k){
-			result.push_back(last);
+			//result.push_back(last);
+			resultNum++;
 			break;
 		}
 		else if(last.size < k){
@@ -232,25 +239,36 @@ vector<UGroup> GSkyline::UnitWisePlus(int k,bool optimize)
 		vector<UGroup> last_layer_i_ugs;
 		now_layer_i_ugs.push_back(ug1);
 
+		//test to debug
+		//now_layer_i_ugs.clear();
+		//points.clear();
+		//points.push_back(allPoints[9440]);
+		//UGroup ug2(points);
+		//now_layer_i_ugs.push_back(ug2);
+
 		int i = 2;
 		while(true){
 			//vector<UGroup> layer_i_ugs;
+			vector<UGroup>().swap( last_layer_i_ugs);
 			last_layer_i_ugs = now_layer_i_ugs;
+			vector<UGroup>().swap( now_layer_i_ugs);
 			now_layer_i_ugs.clear();
 			for(vector<UGroup>::iterator it = last_layer_i_ugs.begin();it != last_layer_i_ugs.end(); it++){
 				UGroup ug = *it;
+				//ug.PrintDetail();
 				if(optimize){
 					//a tentative optimization
 					statCandidateNum++;
 					UGroup last = getGLast(ug);
 					if(last.size == k){
-						result.push_back(last);
-						cout << "candidate groups:" << statCandidateNum << endl;
-						return result;
+						//result.push_back(last);
+						resultNum++;
+						//cout << "candidate groups:" << statCandidateNum << endl;
+						return resultNum;
 					}
 					else if(last.size < k){
-						cout << "candidate groups:" << statCandidateNum << endl;
-						return result;
+						//cout << "candidate groups:" << statCandidateNum << endl;
+						return resultNum;
 					}
 				}
 				set<Point*> ps = it->allParentSet;
@@ -258,13 +276,16 @@ vector<UGroup> GSkyline::UnitWisePlus(int k,bool optimize)
 					if(ps.find(allPoints[j]) == ps.end()){
 						statCandidateNum++;
 						UGroup new_ug(ug);
+						//ug.PrintAsc();
 						//new_ug.unitSet=  ug.unitSet;
 						//new_ug.allParentSet = ug.allParentSet;
 						new_ug.insert(allPoints[j]);
+						//new_ug.PrintDetail();
 						new_ug.tail = j - 1;
 						if(new_ug.size == k){
 							//new_ug.Print();
-							result.push_back(new_ug);
+							//result.push_back(new_ug);
+							resultNum++;
 						}
 						else if(new_ug.allPointSize() < k){
 							now_layer_i_ugs.push_back(new_ug);
@@ -277,8 +298,9 @@ vector<UGroup> GSkyline::UnitWisePlus(int k,bool optimize)
 			i++;
 		}
 	}
-	cout << "candidate groups:" << statCandidateNum << endl;
-	return result;
+	//cout << "candidate groups:" << statCandidateNum << endl;
+	//cout <<"uwise result count:" << resultNum << endl;
+	return resultNum;
 }
 
 void GSkyline::print_layers()
@@ -318,7 +340,8 @@ vector<Group> GSkyline::preprocessing(int k){
 	for(vector<Point*>::iterator it = allPoints.begin(); it != allPoints.end(); it++){
 		Point* p = *it;
 		if(p->layer > k)
-			break;
+			//break;
+				continue;
 		if(p->pSet.size() + 1 == k){
 			Group ng;
 			ng.pointSet.insert(p->pSet.begin(),p->pSet.end());

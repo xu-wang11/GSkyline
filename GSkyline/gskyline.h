@@ -35,7 +35,7 @@ public:
 	vector<Group> PointWise(int k);
 	vector<Group> UnitWise(int k);
 	//optimize should be false.it's a unsuccessful attempt
-	vector<UGroup> UnitWisePlus(int k,bool optimize);
+	/*vector<UGroup>*/int UnitWisePlus(int k,bool optimize);
 	void print_layers();
 	void sortPointsByLayer();
 	vector<Group> preprocessing(int k);

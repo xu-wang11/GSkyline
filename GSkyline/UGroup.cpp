@@ -21,6 +21,7 @@ UGroup::UGroup(const UGroup& u){
 	size = u.size;
 	allParentSet = u.allParentSet;
 	unitSet = u.unitSet;
+	merge = u.merge;
 }
 
 void UGroup::insert(Point* p){
@@ -29,7 +30,9 @@ void UGroup::insert(Point* p){
 		allParentSet.insert(p->pSet.begin(),p->pSet.end());
 		if(tail > p->index - 1)
 			tail = p->index - 1;
-		size = unitSet.size() + allParentSet.size();
+		merge.insert(p);
+		merge.insert(p->pSet.begin(),p->pSet.end());
+		size = merge.size();
 	}
 }
 
@@ -37,21 +40,13 @@ int UGroup::allPointSize(){
 	return size;
 }
 
-struct classcomp 
-{
-  bool operator()(Point* a, Point*b){
-	return a->id < b->id;
-  }
-};
+
 
 bool compareById(Point* a, Point*b){
 	return a->id < b->id;
 }
 
 void UGroup::PrintAsc(){
-	set<Point*,classcomp> merge;
-	merge.insert(unitSet.begin(),unitSet.end());
-	merge.insert(allParentSet.begin(),allParentSet.end());
 	//sort(merge.begin(),merge.end(),compareById);
 	std::cout << "{";
 	set<Point*>::iterator it = merge.begin();
@@ -69,4 +64,20 @@ void UGroup::PrintAsc(){
 		}
 	}
 	cout << "}" << endl;
+}
+void UGroup::PrintDetail(){
+	cout << "unit:";
+	for(set<Point*>::iterator it = unitSet.begin();it != unitSet.end(); it++){
+		cout << 'p' << (*it)->id << ":" << (*it)->index << ',';
+	}
+	cout << "parent:";
+	for(set<Point*>::iterator it = allParentSet.begin();it != allParentSet.end(); it++){
+		cout << 'p' << (*it)->id << ":" << (*it)->index << ',';
+	}
+	cout <<"size:" << size << endl;
+}
+UGroup::~UGroup(){
+	set<Point*>().swap(allParentSet);
+	set<Point*>().swap(unitSet);
+	set<Point*,classcomp>().swap(merge);
 }
