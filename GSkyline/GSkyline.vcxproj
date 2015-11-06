@@ -78,11 +78,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="GLast.h" />
     <ClInclude Include="gskyline.h" />
+    <ClInclude Include="MyPrintf.h" />
+    <ClInclude Include="Point.h" />
+    <ClInclude Include="Ugroup.h" />
+    <ClInclude Include="unit.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="GLast.cpp" />
     <ClCompile Include="gskyline.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MyPrintf.cpp" />
+    <ClCompile Include="Point.cpp" />
+    <ClCompile Include="UGroup.cpp" />
+    <ClCompile Include="unit.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="data\anti_2.txt" />

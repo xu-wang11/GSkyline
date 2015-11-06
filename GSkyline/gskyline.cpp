@@ -132,7 +132,6 @@ void GSkyline::BuildDSG()
 
 
 }
-
 vector<Group> GSkyline::PointWise(int k)
 {
 	vector<vector<Group>> groups;
@@ -174,6 +173,148 @@ vector<Group> GSkyline::PointWise(int k)
 	}
 	return groups[k];
 }
+
+//add by wx
+//breadth first algorithm according to the paper will fail when data bombs because of too heavy memory cosumption
+//instead we use depth first search
+void GSkyline::PointWisePlus(int k)
+{
+	this->PointWiseCount = 0;
+	//calculate first parent and simplecSet
+	int len = this->allPoints.size();
+	Point* root = new Point();
+	for (int i = len - 1; i >= 0; i--){
+		Point *p = allPoints[i];
+		int player = p->layer - 1;
+		if (player == -1){
+			p->firstParent = root;
+			root->simpleCSet.push_front(p);
+		}
+		else{
+			Point *parent = NULL;
+			for (vector<Point*>::iterator it = p->pSet.begin(); it != p->pSet.end(); it++){
+				if ((*it)->layer == player){
+					if (parent == NULL){
+						parent = *it;
+					}
+					else if ((*it)->index < parent->index){
+						parent = *it;
+					}
+				}
+			}
+			p->firstParent = parent;
+			if (parent){
+				parent->simpleCSet.push_front(p);
+			}
+		}
+	}
+
+	//breadth first
+	
+	Group g;
+	g.pointSet.insert(root);
+	g.pointStack.push_back(root);
+	Solve(g, k);
+}
+
+void  GSkyline::Solve(Group &g, int k){
+	set<Point*> parentPoints;
+	for (vector<Point*>::iterator it = g.pointStack.begin() + 1; it != g.pointStack.end(); it++){
+		parentPoints.insert(*it);
+		for (vector<Point*>::iterator ij = (*it)->pSet.begin(); ij != (*it)->pSet.end(); ij++){
+			parentPoints.insert(*ij);
+		}
+		
+	}
+	
+	int psize = parentPoints.size();
+	Point* lastPoint = g.pointStack[g.pointStack.size() - 1];
+	for (list<Point*>::iterator it = (lastPoint->simpleCSet).begin(); it != lastPoint->simpleCSet.end(); it++){
+		int cpsize = psize;
+		if (parentPoints.find(*it) == parentPoints.end()){
+			cpsize++;
+		}
+		for (vector<Point*>::iterator ik = (*it)->pSet.begin(); ik != (*it)->pSet.end(); ik++){
+			if (parentPoints.find(*ik) == parentPoints.end()){
+				cpsize++;
+				
+			}
+		}
+		if (cpsize > k){
+			continue;
+		}
+		else if (cpsize == k && g.pointStack.size() == k){
+			
+				Group ng;
+				ng.pointSet.insert(parentPoints.begin(), parentPoints.end());
+				ng.pointSet.insert(*it);
+				for (vector<Point*>::iterator ik = (*it)->pSet.begin(); ik != (*it)->pSet.end(); ik++){
+					ng.pointSet.insert(*ik);
+				}
+				ng.Print();
+				PointWiseCount++;
+				continue;
+			
+		}
+		
+		else{
+			g.pointStack.push_back(*it);
+			Solve(g, k);
+			g.pointStack.pop_back();
+		}
+	}
+	// iterator all siblings.
+	Point * parent = lastPoint->firstParent;
+	while (parent){
+		if (parent->simpleCSet.size() > 0){
+			list<Point*>::reverse_iterator it = parent->simpleCSet.rbegin();
+
+			while ((*it) != lastPoint){
+				//
+				int cpsize = psize;
+				if (parentPoints.find(*it) == parentPoints.end()){
+					cpsize++;
+				}
+				for (vector<Point*>::iterator ik = (*it)->pSet.begin(); ik != (*it)->pSet.end(); ik++){
+					if (parentPoints.find(*ik) == parentPoints.end()){
+						cpsize++;
+					}
+				}
+				if (cpsize > k){
+					it++;
+					continue;
+				}
+				else if (cpsize == k && g.pointStack.size() == k){
+					
+						Group ng;
+						ng.pointSet.insert(parentPoints.begin(), parentPoints.end());
+						ng.pointSet.insert(*it);
+						for (vector<Point*>::iterator ik = (*it)->pSet.begin(); ik != (*it)->pSet.end(); ik++){
+							ng.pointSet.insert(*ik);
+						}
+						PointWiseCount++;
+						ng.Print();
+						it++;
+						continue;
+					
+				}
+				
+				else{
+					g.pointStack.push_back(*it);
+					Solve(g, k);
+					g.pointStack.pop_back();
+				}
+				it++;
+			}
+		}
+		lastPoint = parent;
+		parent = parent->firstParent;
+	}
+
+
+}
+
+
 
 vector<Group> GSkyline::UnitWise(int k)
 {
@@ -339,9 +480,12 @@ vector<Group> GSkyline::preprocessing(int k){
 	int index = 0;
 	for(vector<Point*>::iterator it = allPoints.begin(); it != allPoints.end(); it++){
 		Point* p = *it;
-		if(p->layer > k)
+		if (p->layer > k){
 			//break;
-				continue;
+			//remove p from its parent
+			
+			continue;
+		}
 		if(p->pSet.size() + 1 == k){
 			Group ng;
 			ng.pointSet.insert(p->pSet.begin(),p->pSet.end());
@@ -394,6 +538,7 @@ bool Group::VerifyPoint(Point* p)
 
 void Group::Print()
 {
+	
 	set<Point*>::iterator it = pointSet.begin();
 	cout << "{";
 	while (true)
@@ -410,4 +555,5 @@ void Group::Print()
 		}
 	}
 	cout << "}" << endl;
+	
 }
