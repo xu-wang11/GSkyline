@@ -58,7 +58,7 @@ int main(int argc, char** argv)
 	cout << "p wise:" << endl;
 	start = GetTickCount();
 	try{
-		skyline.PointWisePlus(k);
+		skyline.PointWise(k);
 		/*for(vector<Group>::iterator it = gs.begin(); it != gs.end(); it++){
 		(*it).Print();
 		}*/
