@@ -225,13 +225,13 @@ UGroup GSkyline::getGLast(UGroup ug){
 			continue;
 		}
 		statCandidateNum++;
-		UGroup last = getGLast(allPoints[u1]);
-		if(last.size == k){
+		//UGroup last = getGLast(allPoints[u1]);
+		if(u1 + 1 == k){
 			//result.push_back(last);
 			resultNum++;
 			break;
 		}
-		else if(last.size < k){
+		else if(u1 + 1 < k){
 			break;
 		}
 
