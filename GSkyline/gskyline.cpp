@@ -251,7 +251,7 @@ void  GSkyline::Solve(Group &g, int k){
 				for (vector<Point*>::iterator ik = (*it)->pSet.begin(); ik != (*it)->pSet.end(); ik++){
 					ng.pointSet.insert(*ik);
 				}
-				ng.Print();
+				//ng.Print();
 				PointWiseCount++;
 				continue;
 			
@@ -293,7 +293,7 @@ void  GSkyline::Solve(Group &g, int k){
 							ng.pointSet.insert(*ik);
 						}
 						PointWiseCount++;
-						ng.Print();
+						//ng.Print();
 						it++;
 						continue;
 					
@@ -349,7 +349,7 @@ UGroup GSkyline::getGLast(UGroup ug){
 /*vector<UGroup>*/int GSkyline::UnitWisePlus(int k,bool optimize)
 {
 	int resultNum = 0;
-	int statCandidateNum = 0;
+	//int statCandidateNum = 0;
 	vector<UGroup> result;
 	for(int u1 = allPoints.size()-1; u1 >= 0; u1--){
 		//cout << "try: p"<< allPoints[u1]->id << endl;
@@ -357,22 +357,22 @@ UGroup GSkyline::getGLast(UGroup ug){
 		vector<Point*> points;
 		points.push_back(allPoints[u1]);
 		UGroup ug1(points);
-		statCandidateNum++;
+		//statCandidateNum++;
 		//preprocessing
-		if(ug1.size == k){
-			//ug1.Print();
-			//result.push_back(ug1);
-			resultNum++;
-			continue;
-		}
-		statCandidateNum++;
-		UGroup last = getGLast(allPoints[u1]);
-		if(last.size == k){
+		//if(ug1.size == k){
+		//	//ug1.Print();
+		//	//result.push_back(ug1);
+		//	resultNum++;
+		//	continue;
+		//}
+		//statCandidateNum++;
+		//UGroup last = getGLast(allPoints[u1]);
+		if(u1 + 1 == k){
 			//result.push_back(last);
 			resultNum++;
 			break;
 		}
-		else if(last.size < k){
+		else if(u1 + 1 < k){
 			break;
 		}
 
@@ -399,7 +399,7 @@ UGroup GSkyline::getGLast(UGroup ug){
 				//ug.PrintDetail();
 				if(optimize){
 					//a tentative optimization
-					statCandidateNum++;
+					//statCandidateNum++;
 					UGroup last = getGLast(ug);
 					if(last.size == k){
 						//result.push_back(last);
@@ -415,7 +415,7 @@ UGroup GSkyline::getGLast(UGroup ug){
 				set<Point*> ps = it->allParentSet;
 				for(int j = ug.tail; j >= 0; j--){
 					if(ps.find(allPoints[j]) == ps.end()){
-						statCandidateNum++;
+						//statCandidateNum++;
 						UGroup new_ug(ug);
 						//ug.PrintAsc();
 						//new_ug.unitSet=  ug.unitSet;

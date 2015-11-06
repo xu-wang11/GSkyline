@@ -12,8 +12,8 @@ int MyPrintf::cur_index = 0;
 char MyPrintf::print_str[buf_size];
 int main(int argc, char** argv)
 {
-	string filename = "data/inde_2.txt";
-	int k = 4;
+	string filename = "data/inde_4.txt";
+	int k = 2;
 	//handle input by wx
 	printf("Usage: \n default mode:GSkyline \n Custom mode: GSkyline <data file> <gskyline size> <output: if empty use stdout\n");
 	if (argc == 1) {
@@ -44,16 +44,17 @@ int main(int argc, char** argv)
 	cout << "layers:" << skyline.layers.size() << endl;
 	end = GetTickCount();
 	printf("building cost time: %lld ms\n", end - start);
-
+	
 	start = GetTickCount();
 	vector<Group> pre = skyline.preprocessing(k);
     end = GetTickCount();
 	printf("processing cost time: %lld ms\n", end - start);
 	cout << "preprocessing result:" << endl;
 	int preNum = pre.size();
-	for(vector<Group>::iterator it = pre.begin(); it != pre.end(); it++){
+
+	/*for(vector<Group>::iterator it = pre.begin(); it != pre.end(); it++){
 		(*it).Print();
-	}
+	}*/
 	cout << "preprocessing end" << endl;
 	cout << "p wise:" << endl;
 	start = GetTickCount();
@@ -73,16 +74,15 @@ int main(int argc, char** argv)
 	cout << "u wise plus:" << endl;
 	start = GetTickCount();
 	/*vector<UGroup> gs1*/
+	
 	int uwiseNum = skyline.UnitWisePlus(k,false);
 	//for(vector<UGroup>::iterator it = gs1.begin(); it != gs1.end(); it++){
 	//	(*it).PrintAsc();
 	//}
 	//printf("get result group: %d\n",gs1.size());
 	end = GetTickCount();
-	cout << "u wise get result group num:" <<(uwiseNum + preNum) << endl;
+	cout << "u wise get result group num:" <<(uwiseNum+preNum) << endl;
 	cout << "uwise cost time: "<<(end - start) <<" ms" << endl;
-	
-	
 
 	//printf("pwise cost time: %lld ms\n", end - start);
 	return 0;
