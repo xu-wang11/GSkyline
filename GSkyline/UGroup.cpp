@@ -81,3 +81,8 @@ UGroup::~UGroup(){
 	set<Point*>().swap(unitSet);
 	set<Point*,classcomp>().swap(merge);
 }
+void UGroup::clearUGroup(){
+	allParentSet.clear();
+	unitSet.clear();
+	merge.clear();
+}
