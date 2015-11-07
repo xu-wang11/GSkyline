@@ -1,4 +1,4 @@
-#include "gskyline.h"
+﻿#include "gskyline.h"
 
 #include <fstream>
 #include <algorithm>
@@ -54,7 +54,7 @@ void GSkyline::load(string filename)
 
 void GSkyline::SortPoints()
 {
-	//�����е��������
+	//对所有点进行排序
 	sort(this->allPoints.begin(), this->allPoints.end(), comparePoint);
 }
 
@@ -442,6 +442,96 @@ UGroup GSkyline::getGLast(UGroup ug){
 	//cout << "candidate groups:" << statCandidateNum << endl;
 	//cout <<"uwise result count:" << resultNum << endl;
 	return resultNum;
+}
+
+
+/*vector<UGroup>*/int GSkyline::UnitWisePlusPlus(int k)
+{
+	int resultNum = 0;
+	vector<UGroup> result;
+	UGroup* uGroups = new UGroup[k+1];
+	size_t startI = 0;
+	int allLen = allPoints.size();
+	int layer = 1;
+	int* tailList = new int[k+1];
+	int* parentNumList = new int[k+1];
+	memset(parentNumList, 0, sizeof(int)*(k+1));
+	int lastSum = 0;
+	tailList[0] = allLen - 1;
+	int tail = tailList[0];
+	int i = tail;
+	int leftAll;
+	while(1){
+		if(layer <= 0)
+			break;
+		//cout << "try: p"<< allPoints[u1]->id << endl;
+		//new_point
+		Point* np = allPoints[i];
+		leftAll = layer + lastSum + parentNumList[layer] + np->index;
+		if(leftAll <= k){
+			if(leftAll == k){
+				uGroups[layer] = uGroups[layer - 1];
+				//如果出现这种情况，把np后面所有的点都加进去
+				/*for(int i = np->index; i >= 0; i--){
+					uGroups[layer].merge.insert(allPoints[i]);
+				}
+				uGroups[layer].size = k;
+				uGroups[layer].PrintAsc();*/
+				//result.push_back(new_ug);
+				resultNum++;
+			}
+			//退回上一层
+			i = tailList[layer-1];
+			uGroups[layer].clearUGroup();
+			lastSum -= parentNumList[layer-1];
+			parentNumList[layer] = 0;
+			layer--;
+			continue;
+		}
+		set<Point*>* ps = &(uGroups[layer - 1].allParentSet);
+		if(ps->find(np) == ps->end()){
+			//UGroup* new_ug = &uGroups[layer];
+			//这里会不会有危险，直接覆盖的话。
+			//TODO：vector直接覆盖会不会产生没有回收的内存
+			uGroups[layer] = uGroups[layer - 1];
+			uGroups[layer].insert(np);
+			uGroups[layer].tail = i - 1;
+			tailList[layer] = i - 1;
+			
+			if(uGroups[layer].allPointSize() < k){
+				//do it next loop
+				i = tailList[layer];
+				lastSum += parentNumList[layer];
+				layer++;
+			}
+			else{
+				if(uGroups[layer].size == k){
+					//uGroups[layer].PrintAsc();
+					//result.push_back(new_ug);
+					resultNum++;
+				}
+				//sibling point
+				i--;
+				uGroups[layer].clearUGroup();
+			}
+		}
+		else{
+			i--;
+			parentNumList[layer]++;
+		}
+		if(i < 0){
+			//向上退一层，应该删除layer-1这一层，否则下次要写在layer-1这一层，没有清空直接覆盖。
+			i = tailList[layer - 1];
+			uGroups[layer-1].clearUGroup();
+			lastSum -= parentNumList[layer-1];
+			parentNumList[layer] = 0;
+			layer--;
+		}
+	}
+	//cout << "candidate groups:" << statCandidateNum << endl;
+	//cout <<"uwise result count:" << resultNum << endl;
+	return resultNum;
+	return 0;
 }
 
 void GSkyline::print_layers()
