@@ -71,18 +71,38 @@ int main(int argc, char** argv)
 	}
 	cout << "pwise cost time: " << (end - start) << " ms" << endl;
 
-	cout << "u wise plus:" << endl;
+	
+
+	cout << "u wise plus plus:" << endl;
 	start = GetTickCount();
 	/*vector<UGroup> gs1*/
 	
-	int uwiseNum = skyline.UnitWisePlus(k,false);
+	int uwiseNum = skyline.UnitWisePlusPlus(k);
 	//for(vector<UGroup>::iterator it = gs1.begin(); it != gs1.end(); it++){
 	//	(*it).PrintAsc();
 	//}
 	//printf("get result group: %d\n",gs1.size());
 	end = GetTickCount();
-	cout << "u wise get result group num:" <<(uwiseNum+preNum) << endl;
+	cout << "get result group:" <<(uwiseNum+preNum) << endl;
 	cout << "uwise cost time: "<<(end - start) <<" ms" << endl;
+
+
+	cout << "u wise plus:" << endl;
+	start = GetTickCount();
+	/*vector<UGroup> gs1*/
+	try{
+		int uwiseNum = skyline.UnitWisePlus(k,false);
+		//for(vector<UGroup>::iterator it = gs1.begin(); it != gs1.end(); it++){
+		//	(*it).PrintAsc();
+		//}
+		//printf("get result group: %d\n",gs1.size());
+		end = GetTickCount();
+		cout << "get result group:" <<(uwiseNum+preNum) << endl;
+		cout << "uwise cost time: "<<(end - start) <<" ms" << endl;
+	}
+	catch (exception &e){
+		printf(e.what());
+	}
 
 	//printf("pwise cost time: %lld ms\n", end - start);
 	return 0;
