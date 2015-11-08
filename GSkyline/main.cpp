@@ -52,19 +52,19 @@ int main(int argc, char** argv)
 	cout << "preprocessing result:" << endl;
 	int preNum = pre.size();
 
-	/*for(vector<Group>::iterator it = pre.begin(); it != pre.end(); it++){
+	for(vector<Group>::iterator it = pre.begin(); it != pre.end(); it++){
 		(*it).Print();
-	}*/
+	}
 	cout << "preprocessing end" << endl;
 	cout << "p wise:" << endl;
 	start = GetTickCount();
 	try{
-		skyline.PointWise(k);
-		/*for(vector<Group>::iterator it = gs.begin(); it != gs.end(); it++){
+		vector<Group> vg = skyline.PointWise(k);
+		for(vector<Group>::iterator it = vg.begin(); it != vg.end(); it++){
 		(*it).Print();
-		}*/
+		}
 		end = GetTickCount();
-		printf("get result group: %d\n", skyline.PointWiseCount + preNum);
+		printf("get result group: %d\n", vg.size() + preNum);
 	}
 	catch (exception &e){
 		printf(e.what());

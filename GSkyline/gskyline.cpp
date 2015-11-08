@@ -70,42 +70,37 @@ void GSkyline::BuildDSG()
 		for (int i = 1; i < allPoints.size(); i++)
 		{
 			Point* p = allPoints[i];
-			if (!(*(layers[0][layers[0].size() - 1])).isDomain(*p))
-			{
-				p->layer = 0;
-				p->isSkylinePoint = true;
-				layers[0].push_back(p);
+			bool isdomain;
+			for (int i = 0; i < layers.size(); i++){
+				isdomain = false;
+				for (int j = 0; j < layers[i].size(); j++){
+					if (layers[i][j]->isDomain(*p)){
+						isdomain = true;
+						break;
+					}
+				}
+				if (!isdomain){
+					//insert to layer i.
+					p->layer = i;
+					if (i == 0){
+						p->isSkylinePoint = true;
+					}
+					else{
+						p->isSkylinePoint = false;
+					}
+					layers[i].push_back(p);
+					break;
+				}
 			}
-			else if ((*(layers[layers.size() - 1][layers[layers.size() - 1].size() - 1])).isDomain(*p))
-			{
+			if (isdomain){
+				//
 				p->layer = ++maxlayer;
 				p->isSkylinePoint = false;
-				vector<Point*>layer;
+				vector<Point*> layer;
 				layer.push_back(p);
 				layers.push_back(layer);
 			}
-			else
-			{
-				//binary search
-				int l = 0, r = maxlayer, m;
-				while (l < r)
-				{
-					m = (l + r) >> 1;
-					if ((*(layers[m][layers[m].size() - 1])).isDomain(*p))
-					{
-						l = m + 1;
-					}
-					else
-					{
-						r = m;
-					}
-				}
-				p->layer = r;
-				p->isSkylinePoint = false;
-				layers[l].push_back(p);
-
-			}
-			  
+		
 
 
 		}

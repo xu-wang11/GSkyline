@@ -37,7 +37,7 @@ public:
 	void SortPoints();
 	void BuildDSG();
 	vector<Group> PointWise(int k);
-	int PointWiseCount;
+	long long int PointWiseCount;
 	void PointWisePlus(int k);
 	void Solve(Group & g, int k);
 	vector<Group> UnitWise(int k);
