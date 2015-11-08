@@ -26,6 +26,7 @@ public:
 	UGroup(const UGroup& u);
 	UGroup(vector<Point*>);
 	~UGroup();
+	void clearUGroup();
 	void insert(Point* p);
 	void Print();
 	void PrintAsc();

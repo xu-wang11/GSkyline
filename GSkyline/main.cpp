@@ -12,7 +12,7 @@ int MyPrintf::cur_index = 0;
 char MyPrintf::print_str[buf_size];
 int main(int argc, char** argv)
 {
-	string filename = "data/inde_4.txt";
+	string filename = "data/corr_6.txt";
 	int k = 2;
 	//handle input by wx
 	printf("Usage: \n default mode:GSkyline \n Custom mode: GSkyline <data file> <gskyline size> <output: if empty use stdout\n");
@@ -28,8 +28,8 @@ int main(int argc, char** argv)
 		filename = string(argv[1]);
 		k = atoi(argv[2]);
 		string outfile = string(argv[3]);
-		freopen_s(&output, outfile.data(), "w", stdout);
-		cout << "entering custom mode:" << filename.data() << " k:" << k <<"output:" << outfile.data() << endl;
+		freopen_s(&output, outfile.data(), "a", stdout);
+		//cout << "entering custom mode:" << filename.data() << " k:" << k <<"output:" << outfile.data() << endl;
 	}
 	else{
 		cout << "error parameter" << endl;
@@ -44,11 +44,15 @@ int main(int argc, char** argv)
 	cout << "layers:" << skyline.layers.size() << endl;
 	end = GetTickCount();
 	printf("building cost time: %lld ms\n", end - start);
-	
+	//cout << filename << "\t";
+	//cout << k << "\t";
+	//printf("%lld\t", end - start);
+
 	start = GetTickCount();
 	vector<Group> pre = skyline.preprocessing(k);
     end = GetTickCount();
 	printf("processing cost time: %lld ms\n", end - start);
+	//printf("%lld\t", end - start);
 	cout << "preprocessing result:" << endl;
 	int preNum = pre.size();
 
@@ -64,12 +68,15 @@ int main(int argc, char** argv)
 		(*it).Print();
 		}
 		end = GetTickCount();
+
 		printf("get result group: %d\n", vg.size() + preNum);
+
 	}
 	catch (exception &e){
 		printf(e.what());
 	}
 	cout << "pwise cost time: " << (end - start) << " ms" << endl;
+	//cout <<(end - start) << "\t";
 
 	cout << "u wise plus:" << endl;
 	start = GetTickCount();
@@ -83,6 +90,8 @@ int main(int argc, char** argv)
 	end = GetTickCount();
 	cout << "u wise get result group num:" <<(uwiseNum+preNum) << endl;
 	cout << "uwise cost time: "<<(end - start) <<" ms" << endl;
+	//cout <<(uwiseNum + preNum) << "\t";
+	//cout <<(end - start) << "\n";
 
 	//printf("pwise cost time: %lld ms\n", end - start);
 	return 0;
