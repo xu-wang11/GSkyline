@@ -44,9 +44,14 @@ public:
 	//optimize should be false.it's a unsuccessful attempt
 	/*vector<UGroup>*/int UnitWisePlus(int k,bool optimize);
 	int UnitWisePlusPlus(int k);
+	long long UnitWisePlusPlus1(int k,Point** all,int len);
+	long long UnitWisePlusPlus2(int k,Point** all,int len);
 	void print_layers();
 	void sortPointsByLayer();
+	void GSkyline::addFirstLayer(int k);
 	vector<Group> preprocessing(int k);
+	long long printAllLayer1(int stIndex, Point** all,int len,int k);
+	long long printAllCombineLayer1(int stIndex, Point** all,int len,int k);
 	UGroup getGLast(Point* p);
 	UGroup getGLast(UGroup p);
 };

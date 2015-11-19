@@ -16,6 +16,7 @@ public:
 	int id;
 	int index;			             //index after sort.
 	vector<Point*> pSet;             //parent set
+	int* firstLayerIndex;
 	vector<Point*> cSet;             //children set
 	list<Point*> simpleCSet;         //children whose parent is its first parent
 	Point* firstParent;              //the first parent of all Parent

@@ -442,6 +442,8 @@ UGroup GSkyline::getGLast(UGroup ug){
 
 /*vector<UGroup>*/int GSkyline::UnitWisePlusPlus(int k)
 {
+	if(allPoints.size() == 0)
+		return 0;
 	int resultNum = 0;
 	vector<UGroup> result;
 	UGroup* uGroups = new UGroup[k+1];
@@ -467,12 +469,6 @@ UGroup GSkyline::getGLast(UGroup ug){
 			if(leftAll == k){
 				uGroups[layer] = uGroups[layer - 1];
 				//如果出现这种情况，把np后面所有的点都加进去
-				/*for(int i = np->index; i >= 0; i--){
-					uGroups[layer].merge.insert(allPoints[i]);
-				}
-				uGroups[layer].size = k;
-				uGroups[layer].PrintAsc();*/
-				//result.push_back(new_ug);
 				resultNum++;
 			}
 			//退回上一层
@@ -520,6 +516,243 @@ UGroup GSkyline::getGLast(UGroup ug){
 			uGroups[layer-1].clearUGroup();
 			lastSum -= parentNumList[layer-1];
 			parentNumList[layer] = 0;
+			layer--;
+		}
+	}
+	//cout << "candidate groups:" << statCandidateNum << endl;
+	//cout <<"uwise result count:" << resultNum << endl;
+	return resultNum;
+	return 0;
+}
+
+long long GSkyline::UnitWisePlusPlus1(int k,Point** all,int len)
+{
+	//cout << "hehe" << printAllLayer1(10,NULL,0,4) << endl;
+	//exit(0);
+	if(len == 0)
+		return 0;
+	long long resultNum = 0;
+	vector<UGroup> result;
+	UGroup* uGroups = new UGroup[k+1];
+	size_t startI = 0;
+	int allLen = len;
+	int layer = 1;
+	int* tailList = new int[k+1];
+	//int* parentNumList = new int[k+1];
+	//memset(parentNumList, 0, sizeof(int)*(k+1));
+	//int lastSum = 0;
+	tailList[0] = allLen - 1;
+	int tail = tailList[0];
+	int i = tail;
+	int leftAll;
+	while(1){
+		if(layer <= 0)
+			break;
+		if(layer == 1 && all[i]->layer == 0){
+			//int s = 0;
+			return resultNum + printAllLayer1(i, all, len, k);
+		}
+		//cout << "try: p"<< allPoints[u1]->id << endl;
+		//new_point
+		Point* np = all[i];
+		//leftAll = layer + lastSum + parentNumList[layer] + np->index;
+		/*if(leftAll <= k){
+			if(leftAll == k){
+				uGroups[layer] = uGroups[layer - 1];
+				//如果出现这种情况，把np后面所有的点都加进去
+				resultNum++;
+			}
+			//退回上一层
+			i = tailList[layer-1];
+			uGroups[layer].clearUGroup();
+			//lastSum -= parentNumList[layer-1];
+			//parentNumList[layer] = 0;
+			layer--;
+			continue;
+		}*/
+		set<Point*>* ps = &(uGroups[layer - 1].allParentSet);
+		if(ps->find(np) == ps->end()){
+			//UGroup* new_ug = &uGroups[layer];
+			//这里会不会有危险，直接覆盖的话。
+			//TODO：vector直接覆盖会不会产生没有回收的内存
+			uGroups[layer] = uGroups[layer - 1];
+			uGroups[layer].insert(np);
+			uGroups[layer].tail = i - 1;
+			tailList[layer] = i - 1;
+			
+			if(uGroups[layer].allPointSize() < k){
+				//do it next loop
+				i = tailList[layer];
+				//lastSum += parentNumList[layer];
+				layer++;
+			}
+			else{
+				if(uGroups[layer].size == k){
+					//uGroups[layer].PrintAsc();
+					//result.push_back(new_ug);
+					resultNum++;
+				}
+				//sibling point
+				i--;
+				//uGroups[layer].clearUGroup();
+			}
+		}
+		else{
+			i--;
+			//parentNumList[layer]++;
+		}
+		while(i < 0){
+			//向上退一层，应该删除layer-1这一层，否则下次要写在layer-1这一层，没有清空直接覆盖。
+			i = tailList[layer - 1];
+			//uGroups[layer-1].clearUGroup();
+			//lastSum -= parentNumList[layer-1];
+			//parentNumList[layer] = 0;
+			layer--;
+		}
+	}
+	//cout << "candidate groups:" << statCandidateNum << endl;
+	//cout <<"uwise result count:" << resultNum << endl;
+	return resultNum;
+	return 0;
+}
+
+long long GSkyline::printAllLayer1(int stIndex, Point** all,int len,int k){
+	if(stIndex < k - 1)
+		return 0;
+	long long count = 1;
+	int* flags = new int[k];
+	for(int i = 0; i < k; i++)
+		flags[i] = stIndex-i;
+	int sk = k-1;
+	int k1 = k-1;
+	while (true)
+	{
+		int sk = k-1;
+		while(flags[sk] == k-1-sk){
+			if(sk==0)
+				return count;
+			sk--;
+		}
+		flags[sk]--;
+		if(sk != k1){
+			for(int s = sk+1; s < k; s++){
+				flags[s] = flags[s-1]-1;
+			}
+		}
+		count++;
+		//print all
+		/*for(int s = 0; s < k; s++)
+			cout << flags[s] << ",";
+		cout << endl;*/
+	}
+}
+
+long long GSkyline::printAllCombineLayer1(int stIndex, Point** all,int len,int k){
+	if(stIndex < k - 1)
+		return 0;
+	long long count = 1;
+	int* flags = new int[k];
+	for(int i = 0; i < k; i++)
+		flags[i] = stIndex-i;
+	int sk = k-1;
+	int k1 = k-1;
+	while (true)
+	{
+		int sk = k-1;
+		while(flags[sk] == k-1-sk){
+			if(sk==0)
+				return count;
+			sk--;
+		}
+		flags[sk]--;
+		if(sk != k1){
+			for(int s = sk+1; s < k; s++){
+				flags[s] = flags[s-1]-1;
+			}
+		}
+		count++;
+		//print all
+		/*for(int s = 0; s < k; s++)
+			cout << flags[s] << ",";
+		cout << endl;*/
+	}
+}
+
+long long GSkyline::UnitWisePlusPlus2(int k,Point** all,int len)
+{
+	//cout << "hehe" << printAllLayer1(10,NULL,0,4) << endl;
+	//exit(0);
+	if(len == 0)
+		return 0;
+	long long resultNum = 0;
+	vector<UGroup> result;
+	UGroup* uGroups = new UGroup[k+1];
+	size_t startI = 0;
+	int allLen = len;
+	int layer = 1;
+	int* tailList = new int[k+1];
+	//int* parentNumList = new int[k+1];
+	//memset(parentNumList, 0, sizeof(int)*(k+1));
+	//int lastSum = 0;
+	tailList[0] = allLen - 1;
+	int tail = tailList[0];
+	int i = tail;
+	int leftAll;
+	while(1){
+		if(layer <= 0)
+			break;
+		if(all[i]->layer == 0){
+			//int s = 0;
+			if(layer == 1)
+				return resultNum + printAllLayer1(i, all, len, k);
+			//add feature
+			UGroup* ug = &uGroups[layer-1];
+			return resultNum + printAllCombineLayer1(i, all, len, k);
+
+			//go back to up layer
+			i = tailList[layer - 1];
+			layer--;
+		}
+
+		//new_point
+		Point* np = all[i];
+		set<Point*>* ps = &(uGroups[layer - 1].allParentSet);
+		if(ps->find(np) == ps->end()){
+			//UGroup* new_ug = &uGroups[layer];
+			//这里会不会有危险，直接覆盖的话。
+			//TODO：vector直接覆盖会不会产生没有回收的内存
+			uGroups[layer] = uGroups[layer - 1];
+			uGroups[layer].insert(np);
+			uGroups[layer].tail = i - 1;
+			tailList[layer] = i - 1;
+			
+			if(uGroups[layer].allPointSize() < k){
+				//do it next loop
+				i = tailList[layer];
+				//lastSum += parentNumList[layer];
+				layer++;
+			}
+			else{
+				if(uGroups[layer].size == k){
+					//uGroups[layer].PrintAsc();
+					//result.push_back(new_ug);
+					resultNum++;
+				}
+				//sibling point
+				i--;
+				//uGroups[layer].clearUGroup();
+			}
+		}
+		else{
+			i--;
+			//parentNumList[layer]++;
+		}
+		while(i < 0){
+			//向上退一层，应该删除layer-1这一层，否则下次要写在layer-1这一层，没有清空直接覆盖。
+			i = tailList[layer - 1];
+			//uGroups[layer-1].clearUGroup();
+			//lastSum -= parentNumList[layer-1];
+			//parentNumList[layer] = 0;
 			layer--;
 		}
 	}
@@ -584,9 +817,36 @@ vector<Group> GSkyline::preprocessing(int k){
 		//if the size of unit (include point and its parent) is greater than k,delete
 	}
 	this->allPoints = temp;
+	addFirstLayer(k);
 	return ret;
 }
 
+void GSkyline::addFirstLayer(int k){
+	int len = allPoints.size();
+	int x,l,t,temp;
+	for(int i = 0; i < len; i++){
+		Point* p = allPoints[i];
+		p->firstLayerIndex = new int[k];
+		memset(p->firstLayerIndex,0,sizeof(int));
+		x = 0;
+		l = p->pSet.size();
+		for(int s = 0; s < l; s++){
+			if(p->pSet[s]->layer == 0){
+				p->firstLayerIndex[x] = p->pSet[s]->index;
+				//sort
+				t = x;
+				while(t > 0){
+					if(p->firstLayerIndex[t] > p->firstLayerIndex[t-1]){
+						temp = p->firstLayerIndex[t];
+						p->firstLayerIndex[t] = p->firstLayerIndex[t-1];
+						p->firstLayerIndex[t-1] = temp;
+					}
+				}
+				x++;
+			}
+		}
+	}
+}
 void Group::CalculateCS()
 {
 	ChildSet.clear();
