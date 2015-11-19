@@ -48,7 +48,7 @@ bool compareById(Point* a, Point*b){
 
 void UGroup::PrintAsc(){
 	//sort(merge.begin(),merge.end(),compareById);
-	std::cout << "{";
+	/*std::cout << "{";
 	set<Point*>::iterator it = merge.begin();
 	while (true)
 	{
@@ -63,7 +63,27 @@ void UGroup::PrintAsc(){
 			break;
 		}
 	}
-	cout << "}" << endl;
+	cout << "}" << endl;*/
+
+
+	/*std::cout << "{";
+	set<Point*>::iterator it = merge.begin();
+	int sum = 0;
+	while (true)
+	{
+		cout << "p" << (*it)->id;
+		sum += (*it)->id;
+		it++;
+		if (it != merge.end())
+		{
+			std::cout << ",";
+		}
+		else
+		{
+			break;
+		}
+	}
+	cout << "," << sum+100000 << endl;*/
 }
 void UGroup::PrintDetail(){
 	cout << "unit:";

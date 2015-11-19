@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <assert.h>
 #include <iostream>
+#include <string>
+#include <sstream>
 using namespace std;
 
 bool comparePoint(Point* a, Point* b) 
@@ -588,7 +590,7 @@ long long GSkyline::UnitWisePlusPlus1(int k,Point** all,int len)
 			}
 			else{
 				if(uGroups[layer].size == k){
-					//uGroups[layer].PrintAsc();
+					uGroups[layer].PrintAsc();
 					//result.push_back(new_ug);
 					resultNum++;
 				}
@@ -619,18 +621,22 @@ long long GSkyline::UnitWisePlusPlus1(int k,Point** all,int len)
 long long GSkyline::printAllLayer1(int stIndex, Point** all,int len,int k){
 	if(stIndex < k - 1)
 		return 0;
-	long long count = 1;
 	int* flags = new int[k];
 	for(int i = 0; i < k; i++)
 		flags[i] = stIndex-i;
+	long long count = 1;
+	//print all
+	printByFlags(all,flags,k);
 	int sk = k-1;
 	int k1 = k-1;
 	while (true)
 	{
 		int sk = k-1;
 		while(flags[sk] == k-1-sk){
-			if(sk==0)
+			if(sk==0){
+				delete [] flags;
 				return count;
+			}	
 			sk--;
 		}
 		flags[sk]--;
@@ -641,41 +647,167 @@ long long GSkyline::printAllLayer1(int stIndex, Point** all,int len,int k){
 		}
 		count++;
 		//print all
-		/*for(int s = 0; s < k; s++)
-			cout << flags[s] << ",";
-		cout << endl;*/
+		printByFlags(all,flags,k);
 	}
 }
 
-long long GSkyline::printAllCombineLayer1(int stIndex, Point** all,int len,int k){
-	if(stIndex < k - 1)
-		return 0;
-	long long count = 1;
-	int* flags = new int[k];
-	for(int i = 0; i < k; i++)
-		flags[i] = stIndex-i;
-	int sk = k-1;
-	int k1 = k-1;
-	while (true)
-	{
-		int sk = k-1;
-		while(flags[sk] == k-1-sk){
-			if(sk==0)
-				return count;
-			sk--;
+void GSkyline::printAllCombineLayer1(int stIndex, Point** all,int len,int k,int* layer1,int layer1_len,int* flags,int sum,int block,int* blockSizes,string preString,long long& count){
+	//long long count = 1;
+//	int* flags = new int[k];
+//	int *blockNum = new int[layer1_len];
+	
+	//第i块选取的数量最少应不少于k-sum-i+1...n块总和，最多应是k-sum
+	int start = k - sum;
+	for(int i = layer1_len-1; i > block && start > 0; i--){
+		start -= blockSizes[i];
+	}
+	if(start<0)
+		start = 0;
+	int end = k - sum;
+	if(end > blockSizes[block])
+		end = blockSizes[block];
+	int endIndex = stIndex - blockSizes[block] + 1;
+	for(int sc = start; sc<= end; sc++){
+		if(sc == 0){
+			printAllCombineLayer1(layer1[block]-1, all,len,k,layer1,layer1_len,flags,sum,block+1,blockSizes,preString,count);
+			continue;
 		}
-		flags[sk]--;
-		if(sk != k1){
-			for(int s = sk+1; s < k; s++){
-				flags[s] = flags[s-1]-1;
+		for(int i = 0; i < sc; i++)
+			flags[sum+i] = stIndex-i;
+		if(sc == k-sum){
+			count++;
+			//print all
+			printByFlagsWithPre(preString,all,flags,k);
+		}
+		else{
+			printAllCombineLayer1(layer1[block]-1, all,len,k,layer1,layer1_len,flags,sum+sc,block+1,blockSizes,preString,count);
+			//continue;
+		}
+		int sk = sc-1;
+		int k1 = sc-1;
+		while (true)
+		{
+			int sk = sc-1;
+			while(flags[sum+sk] == endIndex+sc-1-sk){
+				if(sk==0){
+					//return;
+					break;
+				}
+				sk--;
+			}
+			if(flags[sum+sk] == endIndex+sc-1-sk && sk == 0){
+				break;
+			}
+			flags[sum+sk]--;
+			if(sk != k1){
+				for(int s = sum+sk+1; s < sum+sc; s++){
+					flags[s] = flags[s-1]-1;
+				}
+			}
+			if(sc == k-sum){
+				count++;
+				//print all
+				printByFlagsWithPre(preString,all,flags,k);
+			}
+			else{
+				printAllCombineLayer1(layer1[block]-1, all,len,k,layer1,layer1_len,flags,sum+sc,block+1,blockSizes,preString,count);
 			}
 		}
-		count++;
-		//print all
-		/*for(int s = 0; s < k; s++)
-			cout << flags[s] << ",";
-		cout << endl;*/
 	}
+}
+void GSkyline::printByFlagsWithPre(string preString,Point** all,int * flags,int k){
+	/*cout << "{";
+	for(int s = k-1; s > 0; s--)
+		cout << "p" << all[flags[s]]->id << ",";
+	cout << "p" << all[flags[0]]->id << "," << preString << endl;*/
+
+	/*for(int s = k-1; s > 0; s--)
+		cout << all[flags[s]]->id << ",";
+	cout << all[flags[0]]->id << "," << preString << endl;*/
+}
+string GSkyline::getPreString(UGroup* ug){
+	/*char ch[10];
+	string preString = "";
+	
+	set<Point*>::iterator it = ug->merge.begin();
+	while (true)
+	{
+		_itoa_s((*it)->id,ch,10,10);
+		string s =ch;
+		preString +=  "p"+string(ch);
+		it++;
+		if (it != ug->merge.end())
+		{
+			preString += ",";
+		}
+		else
+		{
+			break;
+		}
+	}
+	preString += "}";*/
+	
+	
+	/*char ch[10];
+	string preString = "";
+	
+	set<Point*>::iterator it = ug->merge.begin();
+	while (true)
+	{
+		_itoa_s((*it)->id,ch,10,10);
+		string s =ch;
+		preString +=  string(ch);
+		it++;
+		if (it != ug->merge.end())
+		{
+			preString += ",";
+		}
+		else
+		{
+			break;
+		}
+	}
+	return preString;*/
+	return "";
+}
+void GSkyline::printByFlags(Point** all,int * flags,int k){
+	/*cout << "{";
+	for(int s = k-1; s > 0; s--)
+		cout << "p" << all[flags[s]]->id << ",";
+	cout << "p" << all[flags[0]]->id << "}" << endl;*/
+	/*int sum = 0;
+	for(int s = k-1; s >= 0 ; s--){
+		cout << all[flags[s]]->id << ",";
+		sum += all[flags[s]]->id;
+	}
+	cout << sum<< endl;*/
+}
+int mergeFirstLayer(int* ls1,int * m,int l1, int lm1,int* temp){
+	int lm = 0;
+	int i,s;
+	for(i = 0; i < lm1; i++)
+		temp[i] = m[i];
+	i = s = 0;
+	while(i <l1 && s < lm1){
+		if(ls1[i] == temp[s]){
+			m[lm] = temp[s];
+			i++;s++;
+		}
+		else if(ls1[i] > temp[s]){
+			m[lm] = ls1[i];
+			i++;
+		}
+		else{
+			m[lm] = temp[s];
+			s++;
+		}
+		lm++;
+	}
+	for(; i < l1; i++)
+		m[lm++] = ls1[i];
+	for(; s < lm1; s++)
+		m[lm++] = temp[s];
+	return lm;
 }
 
 long long GSkyline::UnitWisePlusPlus2(int k,Point** all,int len)
@@ -698,6 +830,14 @@ long long GSkyline::UnitWisePlusPlus2(int k,Point** all,int len)
 	int tail = tailList[0];
 	int i = tail;
 	int leftAll;
+	int* layer1Array = new int[k];
+	int* tempLayer1 = new int[k];
+	int layer1_len = 0;
+	int* flags = new int[k];
+	int * blockSizes = new int[k];
+	//stringstream stream;
+	
+	string preString = "";
 	while(1){
 		if(layer <= 0)
 			break;
@@ -707,11 +847,34 @@ long long GSkyline::UnitWisePlusPlus2(int k,Point** all,int len)
 				return resultNum + printAllLayer1(i, all, len, k);
 			//add feature
 			UGroup* ug = &uGroups[layer-1];
-			return resultNum + printAllCombineLayer1(i, all, len, k);
-
+			int id = (*(uGroups[1].unitSet.begin()))->id;
+			//merge the layer1 parents in unitset
+			layer1_len = 0;
+			for(set<Point*>::iterator it = ug->unitSet.begin(); it != ug->unitSet.end(); it++){
+				layer1_len = mergeFirstLayer((*it)->firstLayerIndex,layer1Array,(*it)->firstLayerLen,layer1_len,tempLayer1);
+			}
+			if(i >= k - ug->size + layer1_len - 1){
+				//the point to be print out in ug
+				
+				//preString = getPreString(ug);
+				//被分割段数=layer1点个数+1
+				blockSizes[0] = i - layer1Array[0];
+				for(int s = 1; s < layer1_len; s++){
+					blockSizes[s] = layer1Array[s-1]-layer1Array[s]-1;
+				}
+				blockSizes[layer1_len] = layer1Array[layer1_len-1];
+				/*for(int s = 0; s < layer1_len+1;s++)
+					if(blockSizes[s] <0)
+						cout << "!!!!!!!!!!!!!";
+				for(int s = 0; s < layer1_len-1;s++)
+					if(layer1Array[s] <layer1Array[s+1])
+						cout << "!!!!!!!!!!!!!";*/
+				printAllCombineLayer1(i, all, len, k-ug->size,layer1Array,layer1_len+1,flags,0,0,blockSizes,preString,resultNum);
+			}
 			//go back to up layer
 			i = tailList[layer - 1];
 			layer--;
+			continue;
 		}
 
 		//new_point
@@ -723,7 +886,7 @@ long long GSkyline::UnitWisePlusPlus2(int k,Point** all,int len)
 			//TODO：vector直接覆盖会不会产生没有回收的内存
 			uGroups[layer] = uGroups[layer - 1];
 			uGroups[layer].insert(np);
-			uGroups[layer].tail = i - 1;
+			//uGroups[layer].tail = i - 1;
 			tailList[layer] = i - 1;
 			
 			if(uGroups[layer].allPointSize() < k){
@@ -734,7 +897,7 @@ long long GSkyline::UnitWisePlusPlus2(int k,Point** all,int len)
 			}
 			else{
 				if(uGroups[layer].size == k){
-					//uGroups[layer].PrintAsc();
+					uGroups[layer].PrintAsc();
 					//result.push_back(new_ug);
 					resultNum++;
 				}
@@ -817,7 +980,9 @@ vector<Group> GSkyline::preprocessing(int k){
 		//if the size of unit (include point and its parent) is greater than k,delete
 	}
 	this->allPoints = temp;
+	//cout << "point" << endl;
 	addFirstLayer(k);
+	//cout << "add first" << endl;
 	return ret;
 }
 
@@ -825,6 +990,8 @@ void GSkyline::addFirstLayer(int k){
 	int len = allPoints.size();
 	int x,l,t,temp;
 	for(int i = 0; i < len; i++){
+		//if(i%100 == 0)
+			//cout << "add:" << i<< endl;	
 		Point* p = allPoints[i];
 		p->firstLayerIndex = new int[k];
 		memset(p->firstLayerIndex,0,sizeof(int));
@@ -841,10 +1008,12 @@ void GSkyline::addFirstLayer(int k){
 						p->firstLayerIndex[t] = p->firstLayerIndex[t-1];
 						p->firstLayerIndex[t-1] = temp;
 					}
+					t--;
 				}
 				x++;
 			}
 		}
+		p->firstLayerLen = x;
 	}
 }
 void Group::CalculateCS()

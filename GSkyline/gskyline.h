@@ -48,11 +48,15 @@ public:
 	long long UnitWisePlusPlus2(int k,Point** all,int len);
 	void print_layers();
 	void sortPointsByLayer();
-	void GSkyline::addFirstLayer(int k);
+	void addFirstLayer(int k);
 	vector<Group> preprocessing(int k);
 	long long printAllLayer1(int stIndex, Point** all,int len,int k);
-	long long printAllCombineLayer1(int stIndex, Point** all,int len,int k);
+	void printAllCombineLayer1(int stIndex, Point** all,int len,int k,int* layer1,int layer1_len,int* flags,int sum,int block,int* blockSizes,string preString,long long& count);
 	UGroup getGLast(Point* p);
 	UGroup getGLast(UGroup p);
+
+	void printByFlags(Point** all,int * flags,int k);
+	void printByFlagsWithPre(string preString,Point** all,int * flags,int k);
+	string getPreString(UGroup* ug);
 };
 #endif
