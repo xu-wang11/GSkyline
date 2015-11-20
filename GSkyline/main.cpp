@@ -63,13 +63,13 @@ int main(int argc, char** argv)
 	cout << "p wise:" << endl;
 	start = GetTickCount();
 	try{
-		vector<Group> vg = skyline.PointWise(k);
-		for(vector<Group>::iterator it = vg.begin(); it != vg.end(); it++){
+		skyline.PointWisePlus(k);
+		/**for(vector<Group>::iterator it = vg.begin(); it != vg.end(); it++){
 		(*it).Print();
-		}
+		}*/
 		end = GetTickCount();
-
-		printf("get result group: %d\n", vg.size() + preNum);
+		printf("count: %d\n", skyline.PointWiseCount + preNum);
+		//printf("get result group: %d\n", vg.size() + preNum);
 
 	}
 	catch (exception &e){

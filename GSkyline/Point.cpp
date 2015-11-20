@@ -1,4 +1,5 @@
 #include "Point.h"
+#include "gskyline.h"
 
 bool Point::isDomain(const Point &p)
 {
@@ -27,4 +28,11 @@ bool Point::operator < (const Point &m)const
 		}
 	}
 	return false;
+}
+
+Point::Point()
+{
+	Count = 0;
+	group = NULL;
+	isDeleted = false;
 }

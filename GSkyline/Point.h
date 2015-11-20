@@ -4,9 +4,11 @@
 #include <set>
 #include <list>
 //using namespace std;
+
 #include"Point.h"
 
 using namespace std;
+class Group;
 
 class Point
 {
@@ -21,7 +23,12 @@ public:
 	Point* firstParent;              //the first parent of all Parent
 	bool isSkylinePoint;
 	bool isVisited;
+	int Count; //¼ÆÊý
+	Group* group;
+	bool isDeleted;
+	
 public:
+	Point();
 	bool isDomain(const Point &p);
 	bool operator < (const Point &m)const;
 };
