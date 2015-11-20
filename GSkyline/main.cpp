@@ -65,11 +65,28 @@ int main(int argc, char** argv)
 	}*/
 	cout << "preprocessing end" << endl;
 
+
 	Point** all = new Point*[skyline.allPoints.size()];
-	for(int i = 0; i < skyline.allPoints.size(); i++){
+	for (int i = 0; i < skyline.allPoints.size(); i++){
 		all[i] = skyline.allPoints[i];
 	}
 
+	cout << "p wise:" << endl;
+	start = GetTickCount();
+	try{
+		skyline.PointWisePlus(k);
+		/**for(vector<Group>::iterator it = vg.begin(); it != vg.end(); it++){
+		(*it).Print();
+		}*/
+		end = GetTickCount();
+		printf("count: %d\n", skyline.PointWiseCount + preNum);
+		//printf("get result group: %d\n", vg.size() + preNum);
+
+	}
+	catch (exception &e){
+		printf(e.what());
+	}
+	//return 0;
 
 	/*
 	cout << "p wise:" << endl;
