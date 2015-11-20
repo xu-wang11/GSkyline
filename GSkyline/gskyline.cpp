@@ -1255,6 +1255,13 @@ void GSkyline::addFirstLayer(int k){
 		p->firstLayerLen = x;
 	}
 }
+
+Group::Group()
+{
+	MaxPointCount = 0;
+	this->maxLayer = 0;
+	this->PointCount = 0;
+}
 void Group::CalculateCS()
 {
 	ChildSet.clear();

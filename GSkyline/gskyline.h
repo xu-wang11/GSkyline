@@ -24,6 +24,7 @@ public:
 public:
 	void CalculateCS();
 	bool VerifyPoint(Point* p);
+	Group();
 	
 	void Print();
 };
