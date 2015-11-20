@@ -17,6 +17,11 @@ bool comparePointByLayer(Point* a, Point* b){
 	return a->layer < b->layer;
 }
 
+bool comparePointByIndex(Point* a, Point* b){
+	return a->index < b->index;
+}
+
+
 GSkyline::GSkyline(string filename)
 {
 	this->load(filename);
@@ -38,7 +43,7 @@ void GSkyline::load(string filename)
 		string str(buf);
 		int index;
 		Point* p = new Point();
-		
+
 		while ((index = str.find_first_of(' ')) >= 0)
 		{
 			string str1 = str.substr(0, index);
@@ -50,8 +55,10 @@ void GSkyline::load(string filename)
 		if (p->v.size() >= 2){
 			this->allPoints.push_back(p);
 		}
-		
+
 	}
+
+	
 }
 
 void GSkyline::SortPoints()
@@ -180,33 +187,45 @@ void GSkyline::PointWisePlus(int k)
 	//calculate first parent and simplecSet
 	int len = this->allPoints.size();
 	Point* root = new Point();
-	for (int i = len - 1; i >= 0; i--){
+	for (int i = 0; i < len; i++){
 		Point *p = allPoints[i];
+		//p->Count = p->pSet.size();
+		//printf("%d\n", p->index);
 		int player = p->layer - 1;
 		if (player == -1){
 			p->firstParent = root;
-			root->simpleCSet.push_front(p);
+			root->simpleCSet.push_back(p);
+			p->indexInSimpleSet = root->simpleCSet.size() - 1;
 		}
 		else{
 			Point *parent = NULL;
-			for (vector<Point*>::iterator it = p->pSet.begin(); it != p->pSet.end(); it++){
-				if ((*it)->layer == player){
-					if (parent == NULL){
-						parent = *it;
-					}
-					else if ((*it)->index < parent->index){
-						parent = *it;
+			sort(p->pSet.begin(), p->pSet.end(), comparePointByIndex);
+			parent = *(p->pSet.begin());
+			if (parent->layer == player)
+			{
+				p->firstParent = parent;
+				parent->simpleCSet.push_back(p);
+				p->indexInSimpleSet = parent->simpleCSet.size() - 1;
+			}
+			else
+			{
+				for (vector<Point*>::iterator it = p->pSet.begin(); it != p->pSet.end(); it++){
+					if ((*it)->firstParent == parent)
+					{
+						parent = (*it);
+						if (parent->layer == player)
+						{
+							break;
+						}
 					}
 				}
+					p->firstParent = parent;
+					parent->simpleCSet.push_back(p);
+					p->indexInSimpleSet = parent->simpleCSet.size() - 1;
 			}
-			p->firstParent = parent;
-			if (parent){
-				parent->simpleCSet.push_front(p);
-			}
+			
 		}
 	}
-
-	//breadth first
 	
 	Group g;
 	g.pointSet.insert(root);
@@ -214,101 +233,228 @@ void GSkyline::PointWisePlus(int k)
 	Solve(g, k);
 }
 
-void  GSkyline::Solve(Group &g, int k){
-	set<Point*> parentPoints;
-	for (vector<Point*>::iterator it = g.pointStack.begin() + 1; it != g.pointStack.end(); it++){
-		parentPoints.insert(*it);
-		for (vector<Point*>::iterator ij = (*it)->pSet.begin(); ij != (*it)->pSet.end(); ij++){
-			parentPoints.insert(*ij);
-		}
-		
-	}
-	
-	int psize = parentPoints.size();
+void GSkyline::Solve(Group &g, int k){
+	bool containPoint = false;
 	Point* lastPoint = g.pointStack[g.pointStack.size() - 1];
-	for (list<Point*>::iterator it = (lastPoint->simpleCSet).begin(); it != lastPoint->simpleCSet.end(); it++){
-		int cpsize = psize;
-		if (parentPoints.find(*it) == parentPoints.end()){
-			cpsize++;
-		}
-		for (vector<Point*>::iterator ik = (*it)->pSet.begin(); ik != (*it)->pSet.end(); ik++){
-			if (parentPoints.find(*ik) == parentPoints.end()){
-				cpsize++;
-				
-			}
-		}
-		if (cpsize > k){
-			continue;
-		}
-		else if (cpsize == k && g.pointStack.size() == k){
-			
-				Group ng;
-				ng.pointSet.insert(parentPoints.begin(), parentPoints.end());
-				ng.pointSet.insert(*it);
-				for (vector<Point*>::iterator ik = (*it)->pSet.begin(); ik != (*it)->pSet.end(); ik++){
-					ng.pointSet.insert(*ik);
-				}
-				//ng.Print();
-				PointWiseCount++;
-				continue;
-			
-		}
+	for (vector<Point*>::iterator it = (lastPoint->simpleCSet).begin(); it != lastPoint->simpleCSet.end(); it++){
+		//测试可能的大小
+		int oldSize = g.MaxPointCount;
+		int csize = oldSize;
 		
+		if ((*it)->Count != 0)
+		{
+			containPoint = true;
+		}
+		else
+		{
+			csize++;
+		}
+		for (vector<Point*>::iterator itj = (*it)->pSet.begin(); itj != (*it)->pSet.end(); itj++)
+		{
+			if ((*itj)->Count == 0)
+			{
+				csize++;
+			}
+			(*itj)->Count++;
+		}
+	
+		//printf("%d-%d-%d\n", csize, g.MaxPointCount, (*it)->Count);
+		if (csize > k){
+			for (vector<Point*>::iterator itj = (*it)->pSet.begin(); itj != (*it)->pSet.end(); itj++)
+			{
+				(*itj)->Count--;
+			}
+			if (containPoint)
+			{
+				return;
+			}
+			else
+			{
+				continue;
+			}
+			
+		}
+		else if (csize == k){
+				
+				PointWiseCount++;
+				//printf("%d");
+				for (vector<Point*>::iterator itj = (*it)->pSet.begin(); itj != (*it)->pSet.end(); itj++)
+				{
+					(*itj)->Count--;
+				}
+				if (containPoint)
+				{
+					return;
+				}
+				else
+				{
+					continue;
+				}
+		}
 		else{
 			g.pointStack.push_back(*it);
+			(*it)->Count++;
+			g.MaxPointCount = csize;
 			Solve(g, k);
 			g.pointStack.pop_back();
+			(*it)->Count--;
+			g.MaxPointCount = oldSize;
+			for (vector<Point*>::iterator itj = (*it)->pSet.begin(); itj != (*it)->pSet.end(); itj++)
+			{
+				(*itj)->Count--;
+			}
+			if (containPoint)
+			{
+				return;
+			}
+			else
+			{
+				continue;
+			}
 		}
+	}
+	if (containPoint)
+	{
+		return;
 	}
 	// iterator all siblings.
 	Point * parent = lastPoint->firstParent;
 	while (parent){
 		if (parent->simpleCSet.size() > 0){
-			list<Point*>::reverse_iterator it = parent->simpleCSet.rbegin();
-
-			while ((*it) != lastPoint){
-				//
-				int cpsize = psize;
-				if (parentPoints.find(*it) == parentPoints.end()){
-					cpsize++;
+			vector<Point*>::iterator it = parent->simpleCSet.begin() + (lastPoint->indexInSimpleSet + 1);
+			
+			while (it != parent->simpleCSet.end()){
+				int oldSize = g.MaxPointCount;
+				int csize = oldSize;
+				bool containPoint = false;
+				if ((*it)->Count != 0)
+				{
+					containPoint = true;
 				}
-				for (vector<Point*>::iterator ik = (*it)->pSet.begin(); ik != (*it)->pSet.end(); ik++){
-					if (parentPoints.find(*ik) == parentPoints.end()){
-						cpsize++;
+				else
+				{
+					csize++;
+				}
+				for (vector<Point*>::iterator itj = (*it)->pSet.begin(); itj != (*it)->pSet.end(); itj++)
+				{
+					if ((*itj)->Count == 0)
+					{
+						csize++;
 					}
+					(*itj)->Count++;
 				}
-				if (cpsize > k){
-					it++;
-					continue;
-				}
-				else if (cpsize == k && g.pointStack.size() == k){
-					
-						Group ng;
-						ng.pointSet.insert(parentPoints.begin(), parentPoints.end());
-						ng.pointSet.insert(*it);
-						for (vector<Point*>::iterator ik = (*it)->pSet.begin(); ik != (*it)->pSet.end(); ik++){
-							ng.pointSet.insert(*ik);
-						}
-						PointWiseCount++;
-						//ng.Print();
+				//printf("%d-%d-%d\n", csize, g.MaxPointCount, (*it)->Count);
+				if (csize > k){
+					for (vector<Point*>::iterator itj = (*it)->pSet.begin(); itj != (*it)->pSet.end(); itj++)
+					{
+						(*itj)->Count--;
+					}
+					if (containPoint)
+					{
+						return;
+					}
+					else
+					{
 						it++;
 						continue;
-					
+					}
+
 				}
-				
+				else if (csize == k){
+					/*
+					g.pointSet.clear();
+					for (int i = 1; i < g.pointStack.size(); i++)
+					{
+						g.pointSet.insert(g.pointStack[i]);
+						for (int j = 0; j < g.pointStack[i]->pSet.size(); j++)
+						{
+							g.pointSet.insert(g.pointStack[i]->pSet[j]);
+						}
+					}
+					g.pointSet.insert(*it);
+					for (int j = 0; j < (*it)->pSet.size(); j++)
+					{
+						g.pointSet.insert((*it)->pSet[j]);
+					}
+					//g.Print();
+					*/
+					//
+					/*
+					Group g1;
+					g1.pointSet.insert(g.pointSet.begin(), g.pointSet.end());
+					bool canFind = false;
+					for (int i = 0; i < allGroups.size(); i++)
+					{
+						bool isFound = true;
+						for (set<Point*>::iterator its = allGroups[i].pointSet.begin(); its != allGroups[i].pointSet.end(); its++)
+						{
+							if (g1.pointSet.find((*its)) == g1.pointSet.end())
+							{
+								isFound = false;
+								break;
+							}
+						}
+						//
+						if (isFound)
+						{
+							canFind = true;
+							for (int i = 0; i < g.pointStack.size(); i++)
+							{
+								cout << g.pointStack[i]->index << " ";
+							}
+							cout << endl;
+							g1.Print();
+
+							break;
+						}
+					}
+					if (!canFind)
+					{
+						allGroups.push_back(g1);
+					}
+					*/
+					PointWiseCount++;
+					for (vector<Point*>::iterator itj = (*it)->pSet.begin(); itj != (*it)->pSet.end(); itj++)
+					{
+						(*itj)->Count--;
+					}
+					if (containPoint)
+					{
+						return;
+					}
+					else
+					{
+						it++;
+						continue;
+					}
+				}
 				else{
 					g.pointStack.push_back(*it);
+					(*it)->Count++;
+					g.MaxPointCount = csize;
 					Solve(g, k);
 					g.pointStack.pop_back();
+					(*it)->Count--;
+					g.MaxPointCount = oldSize;
+					for (vector<Point*>::iterator itj = (*it)->pSet.begin(); itj != (*it)->pSet.end(); itj++)
+					{
+						(*itj)->Count--;
+					}
+					if (containPoint)
+					{
+						return;
+					}
+					else
+					{
+						it++;
+						continue;
+					}
 				}
-				it++;
 			}
 		}
 		lastPoint = parent;
 		parent = parent->firstParent;
 	}
-
-
 }
 
 
@@ -964,13 +1110,14 @@ vector<Group> GSkyline::preprocessing(int k){
 		if (p->layer > k){
 			//break;
 			//remove p from its parent
-			
+			p->isDeleted = true;
 			continue;
 		}
 		if(p->pSet.size() + 1 == k){
 			Group ng;
 			ng.pointSet.insert(p->pSet.begin(),p->pSet.end());
 			ng.pointSet.insert(p);
+			p->isDeleted = true;
 			ret.push_back(ng);
 		}
 		else if(p->pSet.size() + 1 < k){
@@ -980,9 +1127,27 @@ vector<Group> GSkyline::preprocessing(int k){
 		//if the size of unit (include point and its parent) is greater than k,delete
 	}
 	this->allPoints = temp;
+
 	//cout << "point" << endl;
 	addFirstLayer(k);
 	//cout << "add first" << endl;
+
+	vector<Point*>::iterator it;
+	//过滤掉cset中删除的点
+	for (it = this->allPoints.begin(); it != this->allPoints.end(); it++)
+	{
+		int i;
+		vector<Point*> newV;
+		for (i = 0; i < (*it)->cSet.size(); i++)
+		{
+			if (!(*it)->cSet[i]->isDeleted)
+			{
+				newV.push_back((*it)->cSet[i]);
+			}
+		}
+		(*it)->cSet = newV;
+	}
+
 	return ret;
 }
 
@@ -1015,6 +1180,13 @@ void GSkyline::addFirstLayer(int k){
 		}
 		p->firstLayerLen = x;
 	}
+}
+
+Group::Group()
+{
+	MaxPointCount = 0;
+	this->maxLayer = 0;
+	this->PointCount = 0;
 }
 void Group::CalculateCS()
 {
@@ -1057,7 +1229,7 @@ void Group::Print()
 	cout << "{";
 	while (true)
 	{
-		cout << "p" << (*it)->id;
+		cout << "p" << (*it)->index;
 		it++;
 		if (it != pointSet.end())
 		{

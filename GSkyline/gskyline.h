@@ -17,10 +17,14 @@ public:
 	int tail;//tail set
 	set<Point*> ChildSet;
 	int maxLayer;
+	int PointCount;
+
+	int MaxPointCount;
 
 public:
 	void CalculateCS();
 	bool VerifyPoint(Point* p);
+	Group();
 	
 	void Print();
 };
@@ -31,6 +35,7 @@ class GSkyline
 public:
 	vector<Point*> allPoints;
 	vector<vector<Point*>> layers;
+	vector<Group> allGroups;
 public:
 	GSkyline(string filename);
 	void load(string filename);
