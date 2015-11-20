@@ -122,9 +122,9 @@ int main(int argc, char** argv)
 
 	cout <<"u++" << endl;
 	start = GetTickCount();
-	long long uwisepp1Num = skyline.UnitWisePlusPlus1(k,all,skyline.allPoints.size());
+	//long long uwisepp1Num = skyline.UnitWisePlusPlus1(k,all,skyline.allPoints.size());
 	end = GetTickCount();
-	cout <<(uwisepp1Num + preNum) << "\t";
+	//cout <<(uwisepp1Num + preNum) << "\t";
 	cout <<(end - start) << "\t";
 	
 	cout <<"u++2" << endl;

@@ -195,6 +195,7 @@ void GSkyline::PointWisePlus(int k)
 		if (player == -1){
 			p->firstParent = root;
 			root->simpleCSet.push_back(p);
+			p->indexInSimpleSet = root->simpleCSet.size() - 1;
 		}
 		else{
 			Point *parent = NULL;
@@ -204,6 +205,7 @@ void GSkyline::PointWisePlus(int k)
 			{
 				p->firstParent = parent;
 				parent->simpleCSet.push_back(p);
+				p->indexInSimpleSet = parent->simpleCSet.size() - 1;
 			}
 			else
 			{
@@ -216,35 +218,14 @@ void GSkyline::PointWisePlus(int k)
 							break;
 						}
 					}
-					
 				}
-				//if (parent->layer == player){
-
 					p->firstParent = parent;
 					parent->simpleCSet.push_back(p);
-				//}
-				
+					p->indexInSimpleSet = parent->simpleCSet.size() - 1;
 			}
-			assert(p->firstParent != NULL);
+			
 		}
 	}
-
-	//for (int i = 0; i < allPoints.size(); i++)
-	//{
-	//	//
-	//	cout << allPoints[i]->index <<": " << endl;
-	//	for (vector<Point*>::iterator it = allPoints[i]->pSet.begin(); it != allPoints[i]->pSet.end(); it++)
-	//	{
-	//		cout << (*it)->index << " ";
-	//	}
-	//	cout << endl;
-	//}
-
-	
-
-	//breadth first
-	//cout << "hello world!" << endl;
-	//
 	
 	Group g;
 	g.pointSet.insert(root);
@@ -253,11 +234,9 @@ void GSkyline::PointWisePlus(int k)
 }
 
 void GSkyline::Solve(Group &g, int k){
-	
 	bool containPoint = false;
-	
 	Point* lastPoint = g.pointStack[g.pointStack.size() - 1];
-	for (list<Point*>::iterator it = (lastPoint->simpleCSet).begin(); it != lastPoint->simpleCSet.end(); it++){
+	for (vector<Point*>::iterator it = (lastPoint->simpleCSet).begin(); it != lastPoint->simpleCSet.end(); it++){
 		//测试可能的大小
 		int oldSize = g.MaxPointCount;
 		int csize = oldSize;
@@ -287,7 +266,7 @@ void GSkyline::Solve(Group &g, int k){
 			}
 			if (containPoint)
 			{
-				break;
+				return;
 			}
 			else
 			{
@@ -296,56 +275,7 @@ void GSkyline::Solve(Group &g, int k){
 			
 		}
 		else if (csize == k){
-				/*
-				g.pointSet.clear();
-				for (int i = 1; i < g.pointStack.size(); i++)
-				{
-					g.pointSet.insert(g.pointStack[i]);
-					for (int j = 0; j < g.pointStack[i]->pSet.size(); j++)
-					{
-						g.pointSet.insert(g.pointStack[i]->pSet[j]);
-					}
-				}
-				g.pointSet.insert(*it);
-				for (int j = 0; j < (*it)->pSet.size(); j++)
-				{
-					g.pointSet.insert((*it)->pSet[j]);
-				}
-				g.Print();
-				*/
-				/*
-				Group g1;
-				g1.pointSet.insert(g.pointSet.begin(), g.pointSet.end());
-				bool canFind = false;
-				for (int i = 0; i < allGroups.size(); i++)
-				{
-					bool isFound = true;
-					for (set<Point*>::iterator its = allGroups[i].pointSet.begin(); its != allGroups[i].pointSet.end(); its++)
-					{
-						if (g1.pointSet.find((*its)) == g1.pointSet.end())
-						{
-							isFound = false;
-							break;
-						}
-					}
-					//
-					if (isFound)
-					{
-						canFind = true;
-						for (int i = 0; i < g.pointStack.size(); i++)
-						{
-							cout << g.pointStack[i]->index << " ";
-						}
-						cout << endl;
-						g1.Print();
-						break;
-					}
-				}
-				if (!canFind)
-				{
-					allGroups.push_back(g1);
-				}
-				*/
+				
 				PointWiseCount++;
 				//printf("%d");
 				for (vector<Point*>::iterator itj = (*it)->pSet.begin(); itj != (*it)->pSet.end(); itj++)
@@ -354,7 +284,7 @@ void GSkyline::Solve(Group &g, int k){
 				}
 				if (containPoint)
 				{
-					break;
+					return;
 				}
 				else
 				{
@@ -375,7 +305,7 @@ void GSkyline::Solve(Group &g, int k){
 			}
 			if (containPoint)
 			{
-				break;
+				return;
 			}
 			else
 			{
@@ -391,12 +321,8 @@ void GSkyline::Solve(Group &g, int k){
 	Point * parent = lastPoint->firstParent;
 	while (parent){
 		if (parent->simpleCSet.size() > 0){
-			list<Point*>::iterator it = parent->simpleCSet.begin();
-			while ((*it) != lastPoint)
-			{
-				it++;
-			}
-			it++;
+			vector<Point*>::iterator it = parent->simpleCSet.begin() + (lastPoint->indexInSimpleSet + 1);
+			
 			while (it != parent->simpleCSet.end()){
 				int oldSize = g.MaxPointCount;
 				int csize = oldSize;
